@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+git fetch upstream
+if [[ "$#" -ne 1 ]]; then
+	echo "Specify a branch to be retargeted at master"
+fi
+git-retarget $1 upstream/release upstream/master

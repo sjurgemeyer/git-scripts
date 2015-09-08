@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+ 
+# $1 - branch to retarget
+# $2 - branch currently targeted
+# $3 - branch to be targeted
+# $4 - new branch name
+
+if [[ "$#" -ne 3  && "$#" -ne 4 ]]; then
+    echo "Usage: git-retarget branch-to-retarget branch-currently-targeted branch-to-be-targeted [new-branch-name]"
+	echo "Takes the difference between branch-currently-targeted and branch-to-retarget and applys those changes to branch-to-target under a new branch name."
+	echo "By default, will change branch-to-retarget to point to the new commit, but if supplied, will create a new branch with the specified name"
+	exit 1
+fi
+
+retargetBranch=$1
+currentlyTargeted=$2
+toBeTargeted=$3
+newBranchName=$4
+
+if [ -z "$newBranchName" ]; then
+	newBranchName=$retargetBranch
+fi
+
+echo "retargetBranch:    $retargetBranch"
+echo "currentlyTargeted: $currentlyTargeted"
+echo "toBeTargeted:      $toBeTargeted"
+echo "newBranchName:     $newBranchName"
+
+git checkout $toBeTargeted
+
+git checkout -b 'gitRetargetBranch'
+
+echo "The following commits will be added on top of $toBeTargeted"
+git rev-list $currentlyTargeted..$retargetBranch
+
+echo "cherry-pick $currentlyTargeted..$retargetBranch"
+git cherry-pick $currentlyTargeted..$retargetBranch
+
+echo "renaming gitRetargetBranch to $newBranchName"
+git branch -M gitRetargetBranch $newBranchName
+
